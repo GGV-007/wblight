@@ -2162,7 +2162,7 @@ open /Applications/WB小灯.app
 它会**读你真实的整个 transcript（上千行）**，用同一套判定逻辑逐行重算，输出统计和最近 16 次灯色翻转。实测输出（刚哥本机，2017 行）：
 
 ```
-重放文件：/Users/<你的用户名>/.workbuddy/projects/Users-<你的用户名>-WorkBuddy-2026-09-10-15-58-39/630a11c1-60f4-453e-9914-dfb429466a7e.jsonl
+重放文件：~/.workbuddy/projects/<项目>/<会话id>.jsonl
 
 总行数 2021
   实质事件 绿=1491 红=272   （记账类跳过 258 行）
@@ -2223,7 +2223,7 @@ PASS  当天归档路径可构造  (2026-09-11.jsonl)
 PASS  心跳完全取自工具日志，未掺入 changes-index  (心跳 21 秒前)
       注：changes-index 比心跳新 16 秒（正是不会误报的证明）
 == 3. 最近动作解析 ==
-PASS  能解析出最近动作  (Grep "/Users/<你的用户名>/Documents/Work/大AI开…)
+PASS  能解析出最近动作  (Grep "~/Documents/Work/大AI开…)
 == 4. 忙闲判定（主判据：回合在途；兜底：心跳 20 秒）==
 PASS  回合在途（深度思考/工具执行）→ 忙，日志再旧也绿
 PASS  回合已交付 → 立刻红（哪怕 1 秒前刚调过工具）
@@ -2235,7 +2235,7 @@ PASS  无 transcript · 心跳新鲜 → 忙
 PASS  无 transcript · 心跳超 20 秒 → 闲
 PASS  无 transcript · 无心跳 → 闲
 == 5. transcript 回合状态（V1.2 主信号）==
-PASS  能找到最新会话 transcript  (…Users-<你的用户名>-WorkBuddy-2026-09-10-15-58-39/630a11c1-60f4-453e-9914-dfb429466a7e.jsonl)
+PASS  能找到最新会话 transcript  (…<项目目录>/<会话id>.jsonl)
 PASS  尾部事件可批量解析  (19 条)
 PASS  事件行带可用 timestamp  (2 秒前)
 PASS  事件可翻译成中文动作名  (调用工具)
