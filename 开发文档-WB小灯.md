@@ -2,9 +2,10 @@
 
 **一句话**：菜单栏上放一个加粗的 `W`，让你在干别的事的时候，一眼就能看出来 WorkBuddy 是在干活还是在闲着。
 
-- 版本：**V2.6**（2026-10-28）—— ①V2.5 修「**没活儿了灯还一直绿闪不灭**」（快照 ✳ 判定无时效）；②**真修「换完提示音重启会丢」**——app 的 Bundle ID 与 NSUserDefaults suite 名同名，macOS 直接忽略该 suite，偏好只在进程内存里、**从不落盘**（详见 0.9）。两次修复都在 **.app 真实环境**做过对照验证。V2.5（2026-10-28）—— 修「**没活儿了灯还一直绿闪不灭**」：V2.2 的「快照有 ✳ 任务就不灭灯」**没有时效**，任务被压缩续跑/异常中断后 WorkBuddy 会把条目永远留在 state=working，灯就永远闪。V2.5 给它加上与 transcript 防挂死相同的 **15 分钟时效**（条目 lastActivityAt 超 15 分钟没动静就当它停了）。自测升 **65 项**（新增 5 项时效用例）。V2.4（2026-10-27）—— 「退出WB小灯」补上**方框叉图标**（xmark.square，13pt；重启项的循环箭头 V1.3 之前就有，退出这个源码里一直漏写，这次落盘，与 Codex V1.4 同步）。V2.3（2026-10-27）—— 面板删掉「最近动作」整行（刚哥定：没意义）。（2026-10-27 修两 bug）—— ①面板首行乱码：分块读块头切在汉字中间时旧码整块按 Latin-1 硬解 → 全行乱码；改为丢 1~3 个残字节重解 UTF-8（`utf8FromChunk`，三处统一）。②**快照里有 ✳ 任务就强制工作中、绝不灭灯**（transcript 判定在回合间隙会误报闲置）。同时：首行格式统一「**当前任务：任务名**」、字号与 Codex 统一 **15**。V2.1：今日调用行上方加分隔线。V2.0：面板改版。V1.9：今日消耗已用累计差值+10 分钟。V1.8：更换提示音。
+- 版本：**V2.7**（2026-11-01）—— **菜单加「关于 WB小灯」区块**（版本 + 项目主页 + 问题反馈，交接单 JJ-2026-1101-01）；版本号统一收进源码顶部常量 `kAppVersion`，与 `Info.plist` 启动时比对告警。｜**V2.6**（2026-10-28）—— ①V2.5 修「**没活儿了灯还一直绿闪不灭**」（快照 ✳ 判定无时效）；②**真修「换完提示音重启会丢」**——app 的 Bundle ID 与 NSUserDefaults suite 名同名，macOS 直接忽略该 suite，偏好只在进程内存里、**从不落盘**（详见 0.9）。两次修复都在 **.app 真实环境**做过对照验证。V2.5（2026-10-28）—— 修「**没活儿了灯还一直绿闪不灭**」：V2.2 的「快照有 ✳ 任务就不灭灯」**没有时效**，任务被压缩续跑/异常中断后 WorkBuddy 会把条目永远留在 state=working，灯就永远闪。V2.5 给它加上与 transcript 防挂死相同的 **15 分钟时效**（条目 lastActivityAt 超 15 分钟没动静就当它停了）。自测升 **65 项**（新增 5 项时效用例）。V2.4（2026-10-27）—— 「退出WB小灯」补上**方框叉图标**（xmark.square，13pt；重启项的循环箭头 V1.3 之前就有，退出这个源码里一直漏写，这次落盘，与 Codex V1.4 同步）。V2.3（2026-10-27）—— 面板删掉「最近动作」整行（刚哥定：没意义）。（2026-10-27 修两 bug）—— ①面板首行乱码：分块读块头切在汉字中间时旧码整块按 Latin-1 硬解 → 全行乱码；改为丢 1~3 个残字节重解 UTF-8（`utf8FromChunk`，三处统一）。②**快照里有 ✳ 任务就强制工作中、绝不灭灯**（transcript 判定在回合间隙会误报闲置）。同时：首行格式统一「**当前任务：任务名**」、字号与 Codex 统一 **15**。V2.1：今日调用行上方加分隔线。V2.0：面板改版。V1.9：今日消耗已用累计差值+10 分钟。V1.8：更换提示音。
 - 状态：**已修正并运行中**（bundle id `io.wblight.menubar`，通用二进制 arm64 + x86_64）
-- 自测：**60 项全部 PASS**（含 7.75 块头切汉字解码、7.5 消耗、7.7 提示音落盘闭环）+ 真实 transcript 全量重放验证
+- 开源：https://github.com/GGV-007/wblight ｜反馈：https://github.com/GGV-007/wblight/issues
+- 自测：**65 项全部 PASS**（含 7.75 块头切汉字解码、7.5 消耗、7.7 提示音落盘闭环）+ 真实 transcript 全量重放验证 + 关于菜单 16 项断言
 - 依赖：零第三方库。V1.3 起联网查积分余额（复用积分助手技能的登录态授权），忙闲判定依旧纯本机
 
 ---
@@ -151,6 +152,33 @@ V1.2 换成读**会话事件日志**（transcript）：`~/.workbuddy/projects/<�
 
 ---
 
+## 0.10 V2.7：菜单加「关于 WB小灯」区块（2026-11-01，交接单 JJ-2026-1101-01）
+
+**为什么**：两个小灯已开源到 GitHub，但应用内**没有任何署名与出处** → 用户不知道去哪看新版、去哪提问题。
+
+**菜单结构**（放在「更换提示音」下方、重启项上方，与 Codex小灯 版结构完全一致）：
+
+```
+关于 WB小灯 ▸
+   版本 2.7                ← 纯显示，enabled=NO（灰＝不可点，符合刚哥定的视觉分层）
+   打开项目主页 ↗          → https://github.com/GGV-007/wblight
+   问题反馈 ↗              → https://github.com/GGV-007/wblight/issues
+```
+
+| 项 | 做法 |
+|----|------|
+| 版本常量 | 源码顶部 `static NSString * const kAppVersion = @"2.7";`，与 `kProjectURL` / `kIssuesURL` 同处一个区块 |
+| plist 同步 | `Info.plist` 的 `CFBundleShortVersionString` / `CFBundleVersion` 现为 **2.7 / 27**；启动时 `WBLIGHT_DEBUG=1` 会比对并告警不一致 |
+| 打开链接 | `- (void)openAboutLink:(id)sender` 取 `representedObject` → `[[NSWorkspace sharedWorkspace] openURL:]`；没带 URL 直接 return |
+| 不动其他 | 忙闲判定、积分、提示音、面板一行未改；仍保持单文件结构 |
+| 链接范围 | 只有仓库主页 + Issues 两个，不放邮箱、不放任何其他联系方式 |
+
+**验证**：`clang -fobjc-arc -framework Cocoa` 编译 **0 错误**；菜单断言 harness **16 PASS / 0 FAIL**；真实 `.app` 内 `WBLIGHT_DEBUG=1` 启动实测 `[boot] WB小灯 v2.7 (plist=2.7)`；内置 `--selftest` 65 项全 PASS；两个外链真实 `openURL:` 均返回 **YES**。
+
+> **升版三步（以后照做）**：① 改源码顶部 `kAppVersion`；② `plutil -replace CFBundleShortVersionString` 与 `CFBundleVersion`；③ 重编译 + 签名 + 重启。
+
+---
+
 ## 0.8 修「没活儿了灯还一直绿闪」（V2.5，2026-10-28 刚哥实测）
 
 **一句话**：任务异常中断后，WorkBuddy 侧栏快照会**永远**留着一条 `state=working`；V2.2 的「有 ✳ 就不灭灯」没写时效，于是灯一直闪、不知道什么时候停。
@@ -243,6 +271,7 @@ does not make sense and will not work.
 ────────────────────────
 打开 WorkBuddy
 更换提示音 ▸                    ← V1.8 新增：子菜单（开关 + 16 个音源 + 试听当前提示音）
+关于 WB小灯 ▸                   ← V2.7：版本 2.7 / 打开项目主页 ↗ / 问题反馈 ↗
 ────────────────────────
 重启 WB 小灯 🔄  ← V1.3 追加：与 Codex小灯 同款重启逻辑（等新实例拉起再退出 + open -n 兜底）；配「循环箭头」图标
 退出WB小灯 ⊠    ← V1.7：改名；V2.4：补「方框叉」图标（源码此前一直缺失，这次落盘）
@@ -361,6 +390,14 @@ static const NSUInteger     kTailBytes         = 65536;  // 只读文件尾部�
 static const NSUInteger     kTitleChunk        = 262144;  // 当前任务=ai-title：从后往前分块扫描，每块 256KB
 static const NSUInteger     kTitleScanCap      = 8388608; // ai-title 最多往回扫 8MB（防超长会话失控）
 static const NSTimeInterval kTaskRefresh       = 30.0;   // 当前任务 30 秒刷一次（独立于 1 秒忙闲巡检）
+
+// ---- 关于 / 开源署名（V2.7，交接单 JJ-2026-1101-01）----
+// 版本号唯一来源：菜单「关于 WB小灯 → 版本 x.y」从这里读。
+// 升版时改这一处即可；同时记得 Info.plist 的 CFBundleShortVersionString / CFBundleVersion 要跟上
+// （启动时在 WBLIGHT_DEBUG=1 下会比对，不一致会打印告警）。
+static NSString * const kAppVersion = @"2.7";
+static NSString * const kProjectURL = @"https://github.com/GGV-007/wblight";
+static NSString * const kIssuesURL  = @"https://github.com/GGV-007/wblight/issues";
 
 @interface Delegate : NSObject <NSApplicationDelegate, NSMenuDelegate>
 @property (strong) NSStatusItem *item;
@@ -1338,6 +1375,36 @@ static const NSTimeInterval kTaskRefresh       = 30.0;   // 当前任务 30 秒�
     [self.menu addItem:soundRoot];
     [self refreshSoundMenuItems];
 
+    // ---- 关于（V2.7，交接单 JJ-2026-1101-01）：版本号 + 项目主页 + 问题反馈 ----
+    // 目的：应用内留出处。用户看到新版本 → 点链接去 Releases 下载 → 形成升级闭环。
+    // 结构与 Codex小灯 版完全一致（版本行不可点＝灰；两个外链＝亮白可点）。
+    NSMenuItem *aboutRoot = [[NSMenuItem alloc] initWithTitle:@"关于 WB小灯" action:nil keyEquivalent:@""];
+    NSMenu *aboutMenu = [[NSMenu alloc] initWithTitle:@"关于 WB小灯"];
+
+    NSMenuItem *verItem = [[NSMenuItem alloc]
+        initWithTitle:[NSString stringWithFormat:@"版本 %@", kAppVersion]
+               action:nil
+        keyEquivalent:@""];
+    verItem.enabled = NO;
+    [aboutMenu addItem:verItem];
+
+    NSMenuItem *homeItem = [[NSMenuItem alloc] initWithTitle:@"打开项目主页 ↗"
+                                                      action:@selector(openAboutLink:)
+                                               keyEquivalent:@""];
+    homeItem.target = self;
+    homeItem.representedObject = kProjectURL;
+    [aboutMenu addItem:homeItem];
+
+    NSMenuItem *issueItem = [[NSMenuItem alloc] initWithTitle:@"问题反馈 ↗"
+                                                       action:@selector(openAboutLink:)
+                                                keyEquivalent:@""];
+    issueItem.target = self;
+    issueItem.representedObject = kIssuesURL;
+    [aboutMenu addItem:issueItem];
+
+    aboutRoot.submenu = aboutMenu;
+    [self.menu addItem:aboutRoot];
+
     [self.menu addItem:[NSMenuItem separatorItem]];
     NSMenuItem *restart = [[NSMenuItem alloc] initWithTitle:@"重启 WB 小灯" action:@selector(restartApp:) keyEquivalent:@""];
     restart.target = self;
@@ -1392,6 +1459,14 @@ static const NSTimeInterval kTaskRefresh       = 30.0;   // 当前任务 30 秒�
     if (u) [[NSWorkspace sharedWorkspace] openApplicationAtURL:u
                                                 configuration:[NSWorkspaceOpenConfiguration configuration]
                                             completionHandler:nil];
+}
+
+// V2.7（交接单 JJ-2026-1101-01）：「关于」里的两个外链，系统默认浏览器打开
+- (void)openAboutLink:(id)sender {
+    id obj = [sender respondsToSelector:@selector(representedObject)] ? [sender representedObject] : nil;
+    NSString *u = [obj isKindOfClass:[NSString class]] ? (NSString *)obj : nil;
+    if (!u.length) return;   // 没带 URL 就什么都不做，不瞎跳
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:u]];
 }
 
 // 重放真实 transcript：用真实代码逻辑逐行算忙闲，验证"思考→绿 / 交付→红"
@@ -1602,6 +1677,14 @@ static const NSTimeInterval kTaskRefresh       = 30.0;   // 当前任务 30 秒�
 // ================= 启动 =================
 
 - (void)applicationDidFinishLaunching:(NSNotification *)n {
+    // V2.7（交接单 JJ-2026-1101-01）：版本常量与 Info.plist 对不上时告警，
+    // 防止「改了源码忘了升 plist」或反过来——只在调试模式下打印，正常启动静默。
+    if (getenv("WBLIGHT_DEBUG")) {
+        NSString *pv = [[NSBundle mainBundle]
+            objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+        NSLog(@"[boot] WB小灯 v%@ (plist=%@)%@", kAppVersion, pv ?: @"(无)",
+              [pv isEqualToString:kAppVersion] ? @"" : @"  ⚠️ 版本不一致，请同步！");
+    }
     self.item = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
     [self loadSoundPrefs];                   // 提示音偏好（V1.8）—— 必须在 buildMenu 之前，勾选态才对
     [self buildMenu];
@@ -1952,7 +2035,6 @@ int main(int argc, const char *argv[]) {
     }
     return 0;
 }
-
 ```
 
 ---

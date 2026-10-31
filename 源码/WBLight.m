@@ -49,6 +49,14 @@ static const NSUInteger     kTitleChunk        = 262144;  // 当前任务=ai-tit
 static const NSUInteger     kTitleScanCap      = 8388608; // ai-title 最多往回扫 8MB（防超长会话失控）
 static const NSTimeInterval kTaskRefresh       = 30.0;   // 当前任务 30 秒刷一次（独立于 1 秒忙闲巡检）
 
+// ---- 关于 / 开源署名（V2.7，交接单 JJ-2026-1101-01）----
+// 版本号唯一来源：菜单「关于 WB小灯 → 版本 x.y」从这里读。
+// 升版时改这一处即可；同时记得 Info.plist 的 CFBundleShortVersionString / CFBundleVersion 要跟上
+// （启动时在 WBLIGHT_DEBUG=1 下会比对，不一致会打印告警）。
+static NSString * const kAppVersion = @"2.7";
+static NSString * const kProjectURL = @"https://github.com/GGV-007/wblight";
+static NSString * const kIssuesURL  = @"https://github.com/GGV-007/wblight/issues";
+
 @interface Delegate : NSObject <NSApplicationDelegate, NSMenuDelegate>
 @property (strong) NSStatusItem *item;
 @property (strong) NSMenu *menu;
@@ -1025,6 +1033,36 @@ static const NSTimeInterval kTaskRefresh       = 30.0;   // 当前任务 30 秒�
     [self.menu addItem:soundRoot];
     [self refreshSoundMenuItems];
 
+    // ---- 关于（V2.7，交接单 JJ-2026-1101-01）：版本号 + 项目主页 + 问题反馈 ----
+    // 目的：应用内留出处。用户看到新版本 → 点链接去 Releases 下载 → 形成升级闭环。
+    // 结构与 Codex小灯 版完全一致（版本行不可点＝灰；两个外链＝亮白可点）。
+    NSMenuItem *aboutRoot = [[NSMenuItem alloc] initWithTitle:@"关于 WB小灯" action:nil keyEquivalent:@""];
+    NSMenu *aboutMenu = [[NSMenu alloc] initWithTitle:@"关于 WB小灯"];
+
+    NSMenuItem *verItem = [[NSMenuItem alloc]
+        initWithTitle:[NSString stringWithFormat:@"版本 %@", kAppVersion]
+               action:nil
+        keyEquivalent:@""];
+    verItem.enabled = NO;
+    [aboutMenu addItem:verItem];
+
+    NSMenuItem *homeItem = [[NSMenuItem alloc] initWithTitle:@"打开项目主页 ↗"
+                                                      action:@selector(openAboutLink:)
+                                               keyEquivalent:@""];
+    homeItem.target = self;
+    homeItem.representedObject = kProjectURL;
+    [aboutMenu addItem:homeItem];
+
+    NSMenuItem *issueItem = [[NSMenuItem alloc] initWithTitle:@"问题反馈 ↗"
+                                                       action:@selector(openAboutLink:)
+                                                keyEquivalent:@""];
+    issueItem.target = self;
+    issueItem.representedObject = kIssuesURL;
+    [aboutMenu addItem:issueItem];
+
+    aboutRoot.submenu = aboutMenu;
+    [self.menu addItem:aboutRoot];
+
     [self.menu addItem:[NSMenuItem separatorItem]];
     NSMenuItem *restart = [[NSMenuItem alloc] initWithTitle:@"重启 WB 小灯" action:@selector(restartApp:) keyEquivalent:@""];
     restart.target = self;
@@ -1079,6 +1117,14 @@ static const NSTimeInterval kTaskRefresh       = 30.0;   // 当前任务 30 秒�
     if (u) [[NSWorkspace sharedWorkspace] openApplicationAtURL:u
                                                 configuration:[NSWorkspaceOpenConfiguration configuration]
                                             completionHandler:nil];
+}
+
+// V2.7（交接单 JJ-2026-1101-01）：「关于」里的两个外链，系统默认浏览器打开
+- (void)openAboutLink:(id)sender {
+    id obj = [sender respondsToSelector:@selector(representedObject)] ? [sender representedObject] : nil;
+    NSString *u = [obj isKindOfClass:[NSString class]] ? (NSString *)obj : nil;
+    if (!u.length) return;   // 没带 URL 就什么都不做，不瞎跳
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:u]];
 }
 
 // 重放真实 transcript：用真实代码逻辑逐行算忙闲，验证"思考→绿 / 交付→红"
@@ -1289,6 +1335,14 @@ static const NSTimeInterval kTaskRefresh       = 30.0;   // 当前任务 30 秒�
 // ================= 启动 =================
 
 - (void)applicationDidFinishLaunching:(NSNotification *)n {
+    // V2.7（交接单 JJ-2026-1101-01）：版本常量与 Info.plist 对不上时告警，
+    // 防止「改了源码忘了升 plist」或反过来——只在调试模式下打印，正常启动静默。
+    if (getenv("WBLIGHT_DEBUG")) {
+        NSString *pv = [[NSBundle mainBundle]
+            objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+        NSLog(@"[boot] WB小灯 v%@ (plist=%@)%@", kAppVersion, pv ?: @"(无)",
+              [pv isEqualToString:kAppVersion] ? @"" : @"  ⚠️ 版本不一致，请同步！");
+    }
     self.item = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
     [self loadSoundPrefs];                   // 提示音偏好（V1.8）—— 必须在 buildMenu 之前，勾选态才对
     [self buildMenu];
